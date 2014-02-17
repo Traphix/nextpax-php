@@ -2,6 +2,7 @@
 
  class Nextpax_Config {
 	
-	public $varr = 'foo';
+	const XMLHOST = 'https://secure.nextpax.com/testxml/xml/';
+	const XMLHOST_BACKUP = 'https://secure.nextpax.net/testxml/xml/';
 	
  }
