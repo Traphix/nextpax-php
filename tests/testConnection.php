@@ -1,7 +1,8 @@
 <?php
  require('../autoload.php');
  
- $Nextpax = new Nextpax_Request();
+ 
+ $Nextpax = new Nextpax_Request('mySessionId01', 'hisSessionId01');
  if($Nextpax->testClient())
  {
 	 echo 'Connection is working.';
