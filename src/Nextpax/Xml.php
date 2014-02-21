@@ -7,27 +7,37 @@
 	public function __construct($SessionId, $ServerSessionId)
 	{
 		$ControlMessage = array (
-			$SessionId => 'SenderSessionID',
-			$ServerSessionId => 'ReceiverSessionID',
-			date('Y-m-d') => 'Date',
-			date('H:i:s') => 'Time',
-			'1' => 'MessageSequence',
-			Nextpax_Config::NEXTPAX_ID => 'SenderID',
-			'NPS001' => 'ReceiverID',
-			'' => 'RequestID',
-			'' => 'ResponseID',
+			'SenderSessionID' => $SessionId,
+			'ReceiverSessionID' => $ServerSessionId,
+			'Date' => date('Y-m-d'),
+			'Time' => date('H:i:s'),
+			'MessageSequence' => '1',
+			'SenderID' => Nextpax_Config::NEXTPAX_ID,
+			'ReceiverID' => 'NPS001',
 		);
 		
-		$xml = new SimpleXMLElement('<TravelMessage xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance" VersionID="1.8N" xsi:noNamespaceSchemaLocation="..\travmessage_v1.8N.xsd"><Control Language="NL" Test="ja"/><TRequest/></TravelMessage>');
+		$xml = new SimpleXMLElement('<TravelMessage VersionID="1.8N"><Control Language="NL" Test="ja"/><TRequest/></TravelMessage>');
 		
-		array_walk_recursive($ControlMessage, array ($xml->Control, 'addChild'));
+		foreach($ControlMessage AS $Key => $Value)
+		{
+			$xml->Control->addChild($Key, $Value);
+		}
 		
 		$this->Message = $xml;
 	}
 	
-	public function insertXml($Array)
+	public function insertXml($Array, $RequestID, $ResponseID)
 	{
-		array_walk_recursive($Array, array ($xml->TRequest, 'addChild'));
+		$xml = $this->Message;
+		
+		// Build xml for request
+		$this->addArrayToXml($xml->TRequest, $Array);
+		
+		// Set request type
+		$xml->Control->addChild('RequestID', $RequestID);
+		$xml->Control->addChild('ResponseID', $ResponseID);
+		
+		//array_walk_recursive($Array, array ($xml->TRequest, 'addChild'));
 		
 		$this->Message = $xml;
 	}
@@ -35,6 +45,26 @@
 	public function __toString()
 	{
 		return $this->Message->asXML();
+	}
+	
+	private function addArrayToXml($XmlObj, $Array)
+	{
+		if($XmlObj === null)
+		{
+			//$XmlObj = new SimpleXMLElement('<key/>');
+		}
+		
+		foreach($Array AS $Key => $Value)
+		{
+			if(!is_array($Value))
+				$XmlObj->addChild($Key, $Value);
+			else {
+				$Node = $XmlObj->addChild($Key);
+				$this->addArrayToXml($Node, $Value);
+			}
+		}
+		
+		return $XmlObj;
 	}
 	
  }

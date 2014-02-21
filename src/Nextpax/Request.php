@@ -21,6 +21,24 @@
 			return false;
 	}
 	
+	public function makeRequest(Anvrg7_Format $Object)
+	{
+		$sXMLRequest = new Nextpax_Xml($this->sessionId, $this->serverSessionId);
+		
+		try {
+			$sXMLRequest->insertXml($Object->as_array(), $Object->requestType, $Object->responseType);
+		
+		}
+		catch(Anvrg7_Exception $Exception)
+		{
+			exit('Exception: '.$Exception->getMessage());
+		}
+		
+		var_dump((string) $sXMLRequest);
+		
+		$this->doRequest($sXMLRequest);
+	}
+	
 	public function doRequest($sXMLRequest = false)
 	{
 		if($sXMLRequest === false OR empty($sXMLRequest))
